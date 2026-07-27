@@ -1,5 +1,4 @@
-![](https://img.shields.io/badge/Foundry-v0.8.5-informational)
-[![](https://img.shields.io/badge/FoundryGet-compatible-success)](https://github.com/cswendrowski/foundryget)
+![](https://img.shields.io/badge/Foundry-v14-informational)
 [![](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%243-orange)](https://www.buymeacoffee.com/T2tZvWJ)
 
 
@@ -16,33 +15,59 @@ I recommend you turn off the Core "Pan to Token Speaker" setting or else risk wh
 
 # Installation
 
-## FoundryGet
+In Foundry VTT's **Add-on Modules** setup screen, choose **Install Module** and
+use this manifest URL:
 
-Using [FoundryGet](https://github.com/cswendrowski/foundryget)
-
+```text
+https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter/releases/latest/download/module.json
 ```
-foundryget install https://raw.githubusercontent.com/cswendrowski/FoundryVtt-Npc-Chatter/master/module.json
-```
 
-## Foundry
-
-
+For a manual installation, extract `npc-chatter.zip` into the Foundry user-data
+`Data/modules/npc-chatter` directory. Fully restart Foundry after installing or
+updating the module.
 
 # Setup
 
-Given a set of Villagers named "Villager A", "Villager B", and "Villager C", setup a "Villager Chatter" roll table or a "Villager" table under a Folder named "NPC Chatter".
+1. Create a Roll Table containing the NPC's possible dialogue.
+2. Open the NPC's token HUD and click the table-list button.
+3. Select one or more Roll Tables and save the assignment.
+4. Click the speech-bubble button on the token HUD to make that NPC speak.
 
-This roll table will need at least one option and a dice roll configured to work.
+The same assignment dialog is available from the **NPC Chatter Tables** control
+in an Actor sheet's header. Assignments are stored on the Actor, so linked tokens
+for that Actor share the same tables. Unlinked tokens can keep their own
+synthetic-Actor assignment.
 
-If "Villager A" has specific dialogue that might trigger on top of the generic Villager chatter, add another "Villager A Chatter" table (or "Villager A" in the "NPC Chatter folder) and it will draw from that as well.
-
-![](chattertablesetup.PNG)
+Any world Roll Table can be assigned; its name and folder no longer matter. A
+table needs at least one result and a valid roll formula.
 
 # Usage
 
-Chatter can only be triggered via scripting. There are a few Macros included as examples - most work out of the box, but some require additional setup.
+NPC Chatter adds two tools to the Tokens scene controls:
 
-The easiest macro is the "Timed Global Chatter" macro - just slap it when a Scene Loads, and they will start chattering!
+- **Make a random NPC speak** immediately triggers global chatter.
+- **Toggle automatic chatter** starts or stops periodic chatter.
+
+The interval and whether global chatter uses the active or currently viewed
+scene are configured under **Module Settings → NPC Chatter**. Only Foundry's
+active GM client runs the automatic timer, preventing duplicate bubbles.
+
+The included **NPC Chatter** macro compendium remains available for automation
+and integrations, but normal use no longer requires importing or running
+macros.
+
+## Legacy table matching
+
+Existing worlds continue to work without migration. When an Actor has no
+explicit assignment, NPC Chatter still recognizes:
+
+- Tables whose names end in `Chatter`.
+- Tables inside a Roll Table folder named `NPC Chatter`.
+
+For example, `Villager Chatter` matches tokens named `Villager A`, `Villager B`,
+and `Villager C`.
+
+![](chattertablesetup.PNG)
 
 ## Trigger Happy
 
@@ -54,7 +79,9 @@ When an Actor walks into a Room (defined by an invisble actor), have a specific 
 
 ## Global Chatter
 
-Picks a random Chatter Table belonging to a random Actor on the first active scene and displays a ChatBubble with rolled Text off of the random Chatter Table.
+Picks a random configured NPC on the active or viewed scene, rolls one of its
+assigned tables, then broadcasts the result as a chat bubble. Legacy name
+matching is used for Actors without explicit assignments.
 
 ```js
 async globalChatter()
@@ -79,15 +106,32 @@ turnOffGlobalTimerChatter()
 
 ## Token Chatter
 
-Given a `Token`, tries to find a matching Chatter Table. If none, exits. If one or more, randomly picks one and displays a rolled result from it as a ChatBubble.
+Given a `Token`, rolls one of its assigned tables and displays the result as a
+chat bubble. Legacy name matching is used when the Actor has no assignment.
 
 ```js
 async tokenChatter(token)
 ```
 
+## Assign Tables
+
+Stores one or more world Roll Table IDs on the Token's Actor. Pass an empty
+array to remove the assignment and restore legacy matching.
+
+```js
+async assignTables(tokenOrActor, tableIds)
+```
+
+## Open the Assignment Dialog
+
+```js
+async openTableAssignment(tokenOrActor)
+```
+
 ## Selected Chatter
 
-Grabs the currently selected Tokens and tries to find matching Chatter Tables. If none, exits. If one or more, randomly picks one and an elibable Token and displays a rolled result from the Table as a ChatBubble.
+Grabs a randomly selected controlled token, finds a matching Chatter Table,
+and broadcasts a rolled result as a chat bubble.
 
 ```js
   async selectedChatter()

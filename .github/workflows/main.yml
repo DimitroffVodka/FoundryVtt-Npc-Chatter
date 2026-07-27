@@ -1,38 +1,40 @@
+name: Publish Release
+
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*"
 
-name: Upload Release Asset
+permissions:
+  contents: write
 
 jobs:
-  build:
-    name: Upload Release Asset
+  release:
+    name: Build and publish Foundry module
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Zip files
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+
+      - name: Build Foundry module archive
         run: |
-           zip -r npcchatter * -x "img/*" ".github/*" "tsconfig.json"
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+          zip -r npc-chatter.zip \
+            CHANGELOG.md \
+            LICENSE.md \
+            README.md \
+            module.json \
+            npcchatter.js \
+            chattertablesetup.PNG \
+            npc-chatter.gif \
+            packs/npc-chatter
+
+      - name: Create GitHub release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./npcchatter.zip
-          asset_name: npcchatter.zip
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            npc-chatter.zip \
+            module.json \
+            --verify-tag \
+            --title "NPC Chatter $GITHUB_REF_NAME" \
+            --notes-file CHANGELOG.md

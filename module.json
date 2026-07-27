@@ -1,27 +1,40 @@
 {
-  "name": "npc-chatter",
+  "id": "npc-chatter",
   "title": "NPC Chatter",
-  "description": "Your NPCs have things to say",
-  "semanticVersion": "2.2.0",
-  "version": "2.2.0",
-  "minimumCoreVersion": "9",
-  "compatibleCoreVersion": "9",
-  "author": "Cody Swendrowski <cody@swendrowski.us>",
-  "scripts": [
-    "./npcchatter.js"
-  ],
-  "socket": true,
-  "styles": [],
-  "languages": [],
-  "packs": [
+  "description": "Your NPCs have things to say.",
+  "version": "2.4.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
     {
-      "name": "npcchatter",
-      "label": "NPC Chatter",
-      "path": "./packs/npc-chatter.db",
-      "entity": "Macro"
+      "name": "Cody Swendrowski",
+      "email": "cody@swendrowski.us"
+    },
+    {
+      "name": "DimitroffVodka",
+      "url": "https://github.com/DimitroffVodka"
     }
   ],
-  "url": "https://github.com/cswendrowski/FoundryVtt-Npc-Chatter",
-  "manifest": "https://raw.githubusercontent.com/cswendrowski/FoundryVtt-Npc-Chatter/master/module.json",
-  "download": "https://github.com/cswendrowski/FoundryVtt-Npc-Chatter/releases/download/v2.2.0/npcchatter.zip"
+  "scripts": [
+    "npcchatter.js"
+  ],
+  "packs": [
+    {
+      "name": "npc-chatter",
+      "label": "NPC Chatter",
+      "path": "packs/npc-chatter",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
+  "url": "https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter",
+  "readme": "https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter/blob/master/README.md",
+  "changelog": "https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter/blob/master/CHANGELOG.md",
+  "manifest": "https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter/releases/latest/download/module.json",
+  "download": "https://github.com/DimitroffVodka/FoundryVtt-Npc-Chatter/releases/download/v2.4.0/npc-chatter.zip"
 }
