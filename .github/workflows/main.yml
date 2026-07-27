@@ -2,8 +2,14 @@ name: Publish Release
 
 on:
   push:
+    branches:
+      - "master"
     tags:
       - "v*"
+    paths:
+      - "module.json"
+      - ".github/workflows/main.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,6 +21,15 @@ jobs:
     steps:
       - name: Check out tagged source
         uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            release_tag="$GITHUB_REF_NAME"
+          else
+            release_tag="v$(node -p 'require("./module.json").version')"
+          fi
+          echo "RELEASE_TAG=$release_tag" >> "$GITHUB_ENV"
 
       - name: Build Foundry module archive
         run: |
@@ -32,9 +47,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists; nothing to publish."
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" \
             npc-chatter.zip \
             module.json \
-            --verify-tag \
-            --title "NPC Chatter $GITHUB_REF_NAME" \
+            --target "$GITHUB_SHA" \
+            --title "NPC Chatter $RELEASE_TAG" \
             --notes-file CHANGELOG.md
